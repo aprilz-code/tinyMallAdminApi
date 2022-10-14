@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import com.aprilz.tiny.common.api.CommonResult;
 import com.aprilz.tiny.common.api.ResultCode;
 import com.aprilz.tiny.common.cache.Cache;
-import com.aprilz.tiny.common.utils.UserUtil;
 import com.aprilz.tiny.dto.ApAdminLoginParam;
 import com.aprilz.tiny.mbg.entity.ApAdmin;
 import com.aprilz.tiny.mbg.entity.ApPermission;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +31,7 @@ import java.util.Map;
 @Controller
 @Api(tags = "会员登录注册管理")
 @RequestMapping("/sso")
+@Validated
 public class ApMemberController {
     @Autowired
     private IApAdminService adminService;
@@ -60,7 +61,7 @@ public class ApMemberController {
     public CommonResult login(@RequestBody ApAdminLoginParam ApAdminLoginParam, HttpServletRequest request, BindingResult result) {
 
         String code = cache.getString(ApAdminLoginParam.getUuid());
-        if(StrUtil.isBlank(code) || !code.equalsIgnoreCase(ApAdminLoginParam.getCode())){
+        if (StrUtil.isBlank(code) || !code.equalsIgnoreCase(ApAdminLoginParam.getCode())) {
             return CommonResult.error(ResultCode.ADMIN_INVALID_KAPTCHA);
         }
 
