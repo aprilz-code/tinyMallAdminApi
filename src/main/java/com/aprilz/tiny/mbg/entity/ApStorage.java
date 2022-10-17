@@ -29,15 +29,15 @@ public class ApStorage extends BaseEntity<ApStorage> {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty("文件的唯一索引")
-    @TableField("key")
+    @TableField("`key`")
     private String key;
 
     @ApiModelProperty("文件名")
-    @TableField("name")
+    @TableField("`name`")
     private String name;
 
     @ApiModelProperty("文件类型")
-    @TableField("type")
+    @TableField("`type`")
     private String type;
 
     @ApiModelProperty("文件大小")

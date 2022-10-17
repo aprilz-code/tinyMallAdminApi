@@ -8,6 +8,7 @@ import com.aprilz.tiny.mbg.entity.ApAd;
 import com.aprilz.tiny.mbg.entity.ApGoods;
 import com.aprilz.tiny.service.IApAdService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -28,19 +29,16 @@ public class ApAdServiceImpl extends ServiceImpl<ApAdMapper, ApAd> implements IA
 
     @Override
     public Page<ApAd> querySelective(String name, String content, Integer page, Integer limit, String sort, String order) {
-        LambdaQueryWrapper<ApAd> queryWrapper = new LambdaQueryWrapper<>();
-
+        LambdaQueryChainWrapper<ApAd> queryWrapper = this.lambdaQuery();
         if (StrUtil.isNotBlank(name)) {
             queryWrapper.like(ApAd::getName, name);
         }
-
         if (StrUtil.isNotBlank(content)) {
             queryWrapper.like(ApAd::getContent, content);
         }
         queryWrapper.eq(ApAd::getDeleteFlag,false);
 
         Page<ApAd> pages = PageUtil.initPage(new PageVO().setPageNumber(page).setPageSize(limit).setSort(sort).setOrder(order));
-
-        return this.page(pages, queryWrapper);
+        return queryWrapper.page(pages);
     }
 }

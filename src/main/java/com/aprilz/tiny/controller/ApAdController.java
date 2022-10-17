@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.aprilz.tiny.common.api.CommonResult;
 import com.aprilz.tiny.mbg.entity.ApAd;
 import com.aprilz.tiny.param.CreateOrUpdateAdParam;
+import com.aprilz.tiny.param.DeleteParam;
 import com.aprilz.tiny.service.IApAdService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
@@ -21,7 +22,7 @@ import javax.validation.constraints.NotNull;
 @Validated
 @Slf4j
 @Api(tags = "广告管理")
-public class ApAdminAdController {
+public class ApAdController {
 
     @Autowired
     private IApAdService adService;
@@ -45,7 +46,7 @@ public class ApAdminAdController {
         ApAd apAd = new ApAd();
         BeanUtil.copyProperties(ad,apAd,"id");
         adService.save(apAd);
-        return CommonResult.success(ad);
+        return CommonResult.success(apAd);
     }
 
     @PreAuthorize("hasAuthority('admin:ad:read')")
@@ -66,14 +67,14 @@ public class ApAdminAdController {
             return CommonResult.error("编辑异常");
         }
 
-        return CommonResult.success(ad);
+        return CommonResult.success(apAd);
     }
 
     @PreAuthorize("hasAuthority('admin:ad:delete')")
     @ApiOperation("广告删除")
     @PostMapping("/delete")
-    public CommonResult delete(@NotNull Integer id) {
-        adService.removeById(id);
+    public CommonResult delete(@RequestBody DeleteParam param) {
+        adService.removeById(param.getId());
         return CommonResult.success();
     }
 
