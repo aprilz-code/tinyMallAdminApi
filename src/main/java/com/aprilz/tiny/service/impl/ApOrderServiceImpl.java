@@ -10,6 +10,7 @@ import com.aprilz.tiny.common.api.ResultCode;
 import com.aprilz.tiny.common.plugin.notify.NotifyService;
 import com.aprilz.tiny.common.plugin.notify.NotifyType;
 
+import com.aprilz.tiny.common.utils.CurrencyUtil;
 import com.aprilz.tiny.common.utils.PageUtil;
 import com.aprilz.tiny.common.utils.UserUtil;
 import com.aprilz.tiny.config.wx.WxPayV3Properties;
@@ -448,8 +449,8 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
             RefundGoodsDetail refundGoodsDetail = new RefundGoodsDetail()
                     .setMerchant_goods_id(good.getGoodsSn())
                     .setGoods_name(good.getGoodsName())
-                    .setUnit_price(good.getPrice().multiply(new BigDecimal(100)).intValue())
-                    .setRefund_amount(good.getPrice().multiply(new BigDecimal(100)).multiply(new BigDecimal(good.getNumber())).intValue())
+                    .setUnit_price(CurrencyUtil.fen(good.getPrice()))
+                    .setRefund_amount(CurrencyUtil.fen(good.getPrice()) * good.getNumber())
                     .setRefund_quantity(good.getNumber());
             list.add(refundGoodsDetail);
         });
@@ -461,8 +462,8 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
                     .setReason("IJPay 测试退款")
                     .setNotify_url(wxPayV3Properties.getDomain().concat("/v3/refundNotify"))
                     .setAmount(new RefundAmount()
-                            .setRefund(aftersaleOne.getAmount().multiply(new BigDecimal(100)).intValue())
-                            .setTotal(order.getActualPrice().multiply(new BigDecimal(100)).intValue())
+                            .setRefund(CurrencyUtil.fen(aftersaleOne.getAmount()))
+                            .setTotal(CurrencyUtil.fen(order.getActualPrice()))
                             .setCurrency("CNY"))
                     .setGoods_detail(list);
 

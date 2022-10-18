@@ -3,29 +3,21 @@ package com.aprilz.tiny.controller;
 
 import com.aprilz.tiny.common.api.CommonResult;
 import com.aprilz.tiny.common.api.ResultCode;
-import com.aprilz.tiny.common.plugin.notify.NotifyService;
-import com.aprilz.tiny.common.plugin.notify.NotifyType;
 import com.aprilz.tiny.mall.AftersaleConstant;
 import com.aprilz.tiny.mbg.entity.ApAftersale;
-import com.aprilz.tiny.mbg.entity.ApOrder;
 import com.aprilz.tiny.param.BatchReceptParam;
 import com.aprilz.tiny.param.DeleteParam;
 import com.aprilz.tiny.service.IApAftersaleService;
-import com.aprilz.tiny.service.IApGoodsProductService;
-import com.aprilz.tiny.service.IApOrderGoodsService;
 import com.aprilz.tiny.service.IApOrderService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -41,13 +33,6 @@ public class ApAftersaleController {
     private IApAftersaleService aftersaleService;
     @Autowired
     private IApOrderService orderService;
-    @Autowired
-    private IApOrderGoodsService orderGoodsService;
-    @Autowired
-    private IApGoodsProductService goodsProductService;
-
-    @Autowired
-    private NotifyService notifyService;
 
     @PreAuthorize("hasAuthority('admin:aftersale:list')")
     @ApiOperation("商城管理-售后管理查询")
@@ -64,14 +49,14 @@ public class ApAftersaleController {
     @PreAuthorize("hasAuthority('admin:aftersale:recept')")
     @ApiOperation("商城管理-售后管理-审核通过")
     @PostMapping("/recept")
-    public CommonResult recept(@RequestBody ApAftersale aftersale) {
-        Long id = aftersale.getId();
+    public CommonResult recept(@RequestBody ApAftersale afterSale) {
+        Long id = afterSale.getId();
         ApAftersale aftersaleOne = aftersaleService.getById(id);
-        if(aftersaleOne == null){
+        if (aftersaleOne == null) {
             return CommonResult.error(ResultCode.AFTERSALE_NOT_EXIST);
         }
         Integer status = aftersaleOne.getStatus();
-        if(!AftersaleConstant.STATUS_REQUEST.equals(status)){
+        if (!AftersaleConstant.STATUS_REQUEST.equals(status)) {
             return CommonResult.error(ResultCode.AFTERSALE_NOT_ALLOWED);
         }
         aftersaleOne.setStatus(AftersaleConstant.STATUS_RECEPT);
@@ -92,13 +77,13 @@ public class ApAftersaleController {
         // 批量操作中，如果一部分数据项失败，应该如何处理
         // 这里采用忽略失败，继续处理其他项。
         // 当然开发者可以采取其他处理方式，具体情况具体分析，例如利用事务回滚所有操作然后返回用户失败信息
-        for(Integer id : ids) {
+        for (Integer id : ids) {
             ApAftersale aftersale = aftersaleService.getById(id);
-            if(aftersale == null){
+            if (aftersale == null) {
                 continue;
             }
             Integer status = aftersale.getStatus();
-            if(!status.equals(AftersaleConstant.STATUS_REQUEST)){
+            if (!status.equals(AftersaleConstant.STATUS_REQUEST)) {
                 continue;
             }
             aftersale.setStatus(AftersaleConstant.STATUS_RECEPT);
@@ -117,11 +102,11 @@ public class ApAftersaleController {
     public CommonResult reject(@RequestBody DeleteParam aftersale) {
         Long id = aftersale.getId();
         ApAftersale aftersaleOne = aftersaleService.getById(id);
-        if(aftersaleOne == null){
+        if (aftersaleOne == null) {
             return CommonResult.error();
         }
         Integer status = aftersaleOne.getStatus();
-        if(!status.equals(AftersaleConstant.STATUS_REQUEST)){
+        if (!status.equals(AftersaleConstant.STATUS_REQUEST)) {
             return CommonResult.error(ResultCode.AFTERSALE_NOT_ALLOWED);
         }
         aftersaleOne.setStatus(AftersaleConstant.STATUS_REJECT);
@@ -138,13 +123,13 @@ public class ApAftersaleController {
     @PostMapping("/batch-reject")
     public Object batchReject(@RequestBody BatchReceptParam param) {
         List<Integer> ids = param.getIds();
-        for(Integer id : ids) {
+        for (Integer id : ids) {
             ApAftersale aftersale = aftersaleService.getById(id);
-            if(aftersale == null){
+            if (aftersale == null) {
                 continue;
             }
             Integer status = aftersale.getStatus();
-            if(!status.equals(AftersaleConstant.STATUS_REQUEST)){
+            if (!status.equals(AftersaleConstant.STATUS_REQUEST)) {
                 continue;
             }
             aftersale.setStatus(AftersaleConstant.STATUS_REJECT);
@@ -160,13 +145,13 @@ public class ApAftersaleController {
     @PreAuthorize("hasAuthority('admin:aftersale:refund')")
     @ApiOperation("商城管理-售后管理-退款")
     @PostMapping("/refund")
-    public CommonResult refund(@RequestBody ApAftersale aftersale) {
-        Long id = aftersale.getId();
+    public CommonResult refund(@RequestBody ApAftersale afterSale) {
+        Long id = afterSale.getId();
         ApAftersale aftersaleOne = aftersaleService.getById(id);
-        if(aftersaleOne == null){
+        if (aftersaleOne == null) {
             return CommonResult.validateFailed();
         }
-        if(!aftersaleOne.getStatus().equals(AftersaleConstant.STATUS_RECEPT)){
+        if (!aftersaleOne.getStatus().equals(AftersaleConstant.STATUS_RECEPT)) {
             return CommonResult.error(ResultCode.AFTERSALE_NOT_ALLOWED_REFUND);
         }
 
