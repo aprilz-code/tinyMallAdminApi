@@ -487,7 +487,7 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
                 if (verifySignature) {
                     //校验成功
                     String body = response.getBody();
-                    //TODO 退款这里需要debug，改  还有释放优惠卷呢？？
+                    //TODO 退款这里需要debug，改  还有释放优惠卷呢？？  +一张退款流水表
                     aftersaleOne.setStatus(AftersaleConstant.STATUS_REFUND);
                     aftersaleOne.setHandleTime(new Date());
                     aftersaleService.updateById(aftersaleOne);
@@ -511,7 +511,6 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
                     // TODO 注意订单号只发后6位
                     notifyService.notifySmsTemplate(order.getMobile(), NotifyType.REFUND,
                             new String[]{order.getOrderSn().substring(8, 14)});
-
                     return CommonResult.success();
                 }
 

@@ -80,7 +80,7 @@ public class AliyunSmsSender implements SmsSender {
         request.putQueryParameter("PhoneNumbers", phone);
         request.putQueryParameter("SignName", this.sign);
         request.putQueryParameter("TemplateCode", templateId);
-        /*
+        /**
           NOTE：阿里云短信和腾讯云短信这里存在不一致
           腾讯云短信模板参数是数组，因此短信模板形式如 “短信参数{1}， 短信参数{2}”
           阿里云短信模板参数是JSON，因此短信模板形式如“短信参数{param1}， 短信参数{param2}”
@@ -102,10 +102,10 @@ public class AliyunSmsSender implements SmsSender {
             templateParam = JSONUtil.toJsonStr(data);
         }
         request.putQueryParameter("TemplateParam", templateParam);
-
+        SmsResult smsResult = new SmsResult();
         try {
             CommonResponse response = client.getCommonResponse(request);
-            SmsResult smsResult = new SmsResult();
+
             smsResult.setResult(response);
             String code = Jackson.jsonNodeOf(response.getData()).get("Code").asText();
             if (response.getHttpResponse().isSuccess() && okCode.equals(code)) {
@@ -122,7 +122,6 @@ public class AliyunSmsSender implements SmsSender {
             e.printStackTrace();
         }
 
-        SmsResult smsResult = new SmsResult();
         smsResult.setSuccessful(false);
         return smsResult;
     }

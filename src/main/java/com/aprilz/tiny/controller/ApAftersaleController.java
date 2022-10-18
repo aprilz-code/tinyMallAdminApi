@@ -23,7 +23,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/admin/aftersale")
+@RequestMapping("/aftersale")
 @Validated
 @Slf4j
 @Api(tags = "售后管理")

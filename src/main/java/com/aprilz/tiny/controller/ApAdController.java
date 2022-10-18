@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/ad")
@@ -62,8 +63,12 @@ public class ApAdController {
     @PostMapping("/update")
     public CommonResult update(@RequestBody CreateOrUpdateAdParam ad) {
         ApAd apAd = new ApAd();
+        Long id = ad.getId();
+        if (id == null) {
+            return CommonResult.paramsError();
+        }
         BeanUtil.copyProperties(ad,apAd);
-        if (!adService.updateById(apAd)) {
+        if (  !adService.updateById(apAd)) {
             return CommonResult.error("编辑异常");
         }
 

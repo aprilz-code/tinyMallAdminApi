@@ -21,7 +21,7 @@ import java.util.Objects;
 
 
 @RestController
-@RequestMapping("/admin/admin")
+@RequestMapping("/admin")
 @Validated
 @Slf4j
 @Api(tags = "管理员管理")
@@ -85,7 +85,7 @@ public class ApAdminController {
         // 不允许管理员通过编辑接口修改密码
         admin.setPassword(null);
         if (!adminService.updateById(admin)) {
-            return CommonResult.error();
+            return CommonResult.error("编辑异常");
         }
 
         return CommonResult.success(admin);

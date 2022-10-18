@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -30,6 +31,7 @@ public class ApCategory extends BaseEntity<ApCategory> {
 
     @ApiModelProperty("类目名称")
     @TableField("`name`")
+    @NotBlank(message = "类目名称不能为空")
     private String name;
 
     @ApiModelProperty("类目关键字，以JSON数组格式")
@@ -53,6 +55,7 @@ public class ApCategory extends BaseEntity<ApCategory> {
     private String picUrl;
 
     @TableField("level")
+    @NotBlank(message = "等级不能为空")
     private String level;
 
     @ApiModelProperty("排序")

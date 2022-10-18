@@ -71,8 +71,12 @@ public class ApStorageController {
     @ApiOperation("系统管理-对象存储-编辑")
     @PostMapping("/update")
     public CommonResult update(@RequestBody ApStorage apStorage) {
+        Long id = apStorage.getId();
+        if (id == null) {
+            return CommonResult.paramsError();
+        }
         if (!iApStorageService.updateById(apStorage)) {
-            return CommonResult.error();
+            return CommonResult.error("编辑异常");
         }
         return CommonResult.success(apStorage);
     }

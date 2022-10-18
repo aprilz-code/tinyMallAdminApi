@@ -1,6 +1,7 @@
 package com.aprilz.tiny.service;
 
 import com.aprilz.tiny.mbg.entity.ApComment;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IApCommentService extends IService<ApComment> {
 
+    Page<ApComment> querySelective(String userId, String valueId, Integer page, Integer limit, String sort, String order);
 }

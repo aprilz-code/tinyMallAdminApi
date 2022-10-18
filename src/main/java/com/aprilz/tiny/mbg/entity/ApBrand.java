@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -31,10 +33,12 @@ public class ApBrand extends BaseEntity<ApBrand> {
 
     @ApiModelProperty("品牌商名称")
     @TableField("`name`")
+    @NotBlank(message = "品牌商名称不能为空")
     private String name;
 
     @ApiModelProperty("品牌商简介")
     @TableField("`desc`")
+    @NotBlank(message = "品牌商简介不能为空")
     private String desc;
 
     @ApiModelProperty("品牌商页的品牌商图片")
@@ -46,6 +50,7 @@ public class ApBrand extends BaseEntity<ApBrand> {
 
     @ApiModelProperty("品牌商的商品低价，仅用于页面展示")
     @TableField("floor_price")
+    @NotNull(message = "品牌商的商品低价不能为空")
     private BigDecimal floorPrice;
 
 
