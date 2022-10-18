@@ -1,5 +1,6 @@
 package com.aprilz.tiny.mbg.entity;
 
+import com.aprilz.tiny.mall.validator.annotion.IsUsernameValid;
 import com.aprilz.tiny.mbg.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -9,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -36,9 +38,11 @@ public class ApAdmin extends BaseEntity<ApAdmin> {
     private Boolean status;
 
     @TableField("username")
+    @IsUsernameValid
     private String username;
 
     @TableField("password")
+    @Length(min = 6)
     private String password;
 
     @ApiModelProperty("手机")

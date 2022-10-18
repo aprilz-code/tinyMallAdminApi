@@ -1,6 +1,9 @@
 package com.aprilz.tiny.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.aprilz.tiny.common.api.PageVO;
 import com.aprilz.tiny.common.utils.JwtTokenUtil;
+import com.aprilz.tiny.common.utils.PageUtil;
 import com.aprilz.tiny.mapper.ApAdminMapper;
 import com.aprilz.tiny.mapper.ApPermissionMapper;
 import com.aprilz.tiny.mbg.entity.ApAdmin;
@@ -8,6 +11,8 @@ import com.aprilz.tiny.mbg.entity.ApPermission;
 import com.aprilz.tiny.service.IApAdminService;
 import com.aprilz.tiny.vo.Token;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -57,7 +62,7 @@ public class ApAdminServiceImpl extends ServiceImpl<ApAdminMapper, ApAdmin> impl
         queryWrapper.eq(ApAdmin::getDeleteFlag, false).and(wrapper -> {
             wrapper.eq(ApAdmin::getUsername, username).or().eq(ApAdmin::getMobile, username);
         })
-       .last("limit 1");
+                .last("limit 1");
         return adminMapper.selectOne(queryWrapper);
     }
 
@@ -93,7 +98,7 @@ public class ApAdminServiceImpl extends ServiceImpl<ApAdminMapper, ApAdmin> impl
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Token tk = jwtTokenUtil.generateToken(userDetails);
             token = tk.getToken();
-        }catch (LockedException e) {
+        } catch (LockedException e) {
             throw new LockedException("用户帐号已锁定不可用");
         } catch (AuthenticationException e) {
             log.warn("登录异常:{}", e.getMessage());
@@ -105,5 +110,18 @@ public class ApAdminServiceImpl extends ServiceImpl<ApAdminMapper, ApAdmin> impl
     @Override
     public List<ApPermission> getPermissionList(Long adminId) {
         return apPermissionMapper.getPermissionList(adminId);
+    }
+
+    @Override
+    public Page<ApAdmin> querySelective(String username, Integer page, Integer limit, String sort, String order) {
+        LambdaQueryChainWrapper<ApAdmin> query = this.lambdaQuery();
+        if (StrUtil.isNotBlank(username)) {
+            query.like(ApAdmin::getUsername, username);
+        }
+        query.eq(ApAdmin::getDeleteFlag, false);
+
+        Page<ApAdmin> pages = PageUtil.initPage(new PageVO().setPageNumber(page).setPageSize(limit).setSort(sort).setOrder(order));
+        return query.page(pages);
+
     }
 }

@@ -82,6 +82,10 @@ public class CommonResult<T> {
         return error(ResultCode.VALIDATE_FAILED);
     }
 
+    public static <T> CommonResult<T> paramsError() {
+        return error(ResultCode.PARAMS_ERROR);
+    }
+
     /**
      * 参数验证失败返回结果
      *
