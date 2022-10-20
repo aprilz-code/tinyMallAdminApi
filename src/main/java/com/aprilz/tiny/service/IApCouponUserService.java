@@ -3,6 +3,7 @@ package com.aprilz.tiny.service;
 import com.aprilz.tiny.mbg.entity.ApCouponUser;
 import com.aprilz.tiny.vo.CouponVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -22,4 +23,6 @@ public interface IApCouponUserService extends IService<ApCouponUser> {
     Long countCoupon(Long couponId);
 
     Long countUserAndCoupon(Long userId, Long couponId);
+
+    Page<ApCouponUser> queryList(Integer userId, Integer couponId, Short status, Integer page, Integer limit, String sort, String order);
 }

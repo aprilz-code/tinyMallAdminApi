@@ -4,14 +4,18 @@ import com.aprilz.tiny.common.api.PageVO;
 import com.aprilz.tiny.common.utils.PageUtil;
 import com.aprilz.tiny.mall.CouponUserConstant;
 import com.aprilz.tiny.mapper.ApCouponUserMapper;
+import com.aprilz.tiny.mbg.entity.ApCoupon;
 import com.aprilz.tiny.mbg.entity.ApCouponUser;
 import com.aprilz.tiny.service.IApCouponUserService;
 import com.aprilz.tiny.vo.CouponVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * <p>
@@ -50,6 +54,25 @@ public class ApCouponUserServiceImpl extends ServiceImpl<ApCouponUserMapper, ApC
     @Override
     public Long countUserAndCoupon(Long userId, Long couponId) {
         return this.lambdaQuery().eq(ApCouponUser::getUserId, userId).eq(ApCouponUser::getCouponId, couponId).eq(ApCouponUser::getDeleteFlag, false).count();
+
+    }
+
+    @Override
+    public Page<ApCouponUser> queryList(Integer userId, Integer couponId, Short status, Integer page, Integer limit, String sort, String order) {
+        LambdaQueryChainWrapper<ApCouponUser> query = this.lambdaQuery();
+        if(Objects.nonNull(userId)){
+            query.eq(ApCouponUser::getUserId, userId);
+        }
+        if(Objects.nonNull(couponId)){
+            query.eq(ApCouponUser::getCouponId, couponId);
+        }
+
+        if(Objects.nonNull(status)){
+            query.eq(ApCouponUser::getStatus, status);
+        }
+        query.eq(ApCouponUser::getDeleteFlag, false);
+        Page<ApCouponUser> pages = PageUtil.initPage(new PageVO().setPageNumber(page).setPageSize(limit).setSort(sort).setOrder(order));
+        return query.page(pages);
 
     }
 }

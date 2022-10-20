@@ -31,4 +31,8 @@ public interface IApCouponService extends IService<ApCoupon> {
     Page<ApCoupon> queryList(Integer page, Integer size, String sort, String order);
 
     ApCoupon findByCode(String code);
+
+    String generateCode();
+
+    Page<ApCoupon> querySelective(String name, Short type, Short status, Integer page, Integer limit, String sort, String order);
 }

@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -35,6 +36,7 @@ public class ApCoupon extends BaseEntity<ApCoupon> {
 
     @ApiModelProperty("优惠券名称")
     @TableField("`name`")
+    @NotBlank(message = "优惠券名称不能为空")
     private String name;
 
     @ApiModelProperty("优惠券介绍，通常是显示优惠券使用限制文字")

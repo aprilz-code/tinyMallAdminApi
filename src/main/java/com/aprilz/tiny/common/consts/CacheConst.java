@@ -36,7 +36,7 @@ public class CacheConst {
     @Autowired
     private Cache cache;
 
-    private static void refreshCache() {
+    public static void refreshCache() {
         List<ApSystem> apSystems = cacheConst.systemMapper.selectList(Wrappers.emptyWrapper());
         if (CollUtil.isNotEmpty(apSystems)) {
             apSystems.parallelStream().forEach(sys -> {

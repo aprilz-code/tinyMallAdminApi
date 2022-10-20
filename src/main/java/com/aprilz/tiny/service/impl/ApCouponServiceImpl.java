@@ -3,6 +3,7 @@ package com.aprilz.tiny.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.aprilz.tiny.common.api.PageVO;
 import com.aprilz.tiny.common.consts.Const;
 import com.aprilz.tiny.common.exception.ServiceException;
@@ -234,5 +235,46 @@ public class ApCouponServiceImpl extends ServiceImpl<ApCouponMapper, ApCoupon> i
     public ApCoupon findByCode(String code) {
         return this.lambdaQuery().eq(ApCoupon::getCode, code).eq(ApCoupon::getType, CouponConstant.TYPE_CODE).eq(ApCoupon::getStatus, CouponConstant.STATUS_NORMAL)
                 .eq(ApCoupon::getDeleteFlag, false).one();
+    }
+
+    @Override
+    public String generateCode() {
+        String code = getRandomNum(8);
+        while (findByCode(code) != null) {
+            code = getRandomNum(8);
+        }
+        return code;
+    }
+
+    @Override
+    public Page<ApCoupon> querySelective(String name, Short type, Short status, Integer page, Integer limit, String sort, String order) {
+        LambdaQueryChainWrapper<ApCoupon> query = this.lambdaQuery();
+
+        if (StrUtil.isNotBlank(name)) {
+            query.like(ApCoupon::getName, name);
+        }
+        if (Objects.nonNull(type)) {
+            query.eq(ApCoupon::getType, type);
+        }
+        if (Objects.nonNull(status)) {
+            query.eq(ApCoupon::getStatus, status);
+        }
+        query.eq(ApCoupon::getDeleteFlag, false);
+        Page<ApCoupon> pages = PageUtil.initPage(new PageVO().setPageNumber(page).setPageSize(limit).setSort(sort).setOrder(order));
+        return query.page(pages);
+
+    }
+
+    private String getRandomNum(Integer num) {
+        String base = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        base += "0123456789";
+
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < num; i++) {
+            int number = random.nextInt(base.length());
+            sb.append(base.charAt(number));
+        }
+        return sb.toString();
     }
 }
