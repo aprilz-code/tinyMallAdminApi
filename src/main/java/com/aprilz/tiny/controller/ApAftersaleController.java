@@ -72,12 +72,12 @@ public class ApAftersaleController {
     @ApiOperation("商城管理-售后管理-批量通过")
     @PostMapping("/batch-recept")
     public CommonResult batchRecept(@RequestBody BatchReceptParam param) {
-        List<Integer> ids = param.getIds();
+        List<Long> ids = param.getIds();
         // NOTE
         // 批量操作中，如果一部分数据项失败，应该如何处理
         // 这里采用忽略失败，继续处理其他项。
         // 当然开发者可以采取其他处理方式，具体情况具体分析，例如利用事务回滚所有操作然后返回用户失败信息
-        for (Integer id : ids) {
+        for (Long id : ids) {
             ApAftersale aftersale = aftersaleService.getById(id);
             if (aftersale == null) {
                 continue;
@@ -122,8 +122,8 @@ public class ApAftersaleController {
     @ApiOperation("商城管理-售后管理-批量拒绝")
     @PostMapping("/batch-reject")
     public Object batchReject(@RequestBody BatchReceptParam param) {
-        List<Integer> ids = param.getIds();
-        for (Integer id : ids) {
+        List<Long> ids = param.getIds();
+        for (Long id : ids) {
             ApAftersale aftersale = aftersaleService.getById(id);
             if (aftersale == null) {
                 continue;

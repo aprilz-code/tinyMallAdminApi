@@ -12,5 +12,5 @@ import java.util.List;
 @Data
 public class BatchReceptParam {
 
-    private List<Integer> ids;
+    private List<Long> ids;
 }

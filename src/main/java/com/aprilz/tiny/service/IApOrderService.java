@@ -4,12 +4,15 @@ import com.aprilz.tiny.common.api.CommonResult;
 import com.aprilz.tiny.mbg.entity.ApAftersale;
 import com.aprilz.tiny.mbg.entity.ApOrder;
 import com.aprilz.tiny.param.*;
+import com.aprilz.tiny.vo.OrderVo;
 import com.aprilz.tiny.vo.OrdersListVo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,4 +47,19 @@ public interface IApOrderService extends IService<ApOrder> {
     CommonResult comment(OrderCommentParam param);
 
     CommonResult doRefund(ApAftersale aftersaleOne);
+
+    Object adminDetail(Long id);
+
+    Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, LocalDateTime start, LocalDateTime end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order);
+
+    CommonResult doRefundWithOid(Long orderId);
+
+
+    void ship(OrderShipParam param);
+
+    CommonResult pay(OrderPrepayParam body);
+
+    CommonResult backDelete(OrderDeleteParam param);
+
+    CommonResult reply(OrderReplyParam param);
 }

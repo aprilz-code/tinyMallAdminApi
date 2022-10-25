@@ -14,5 +14,7 @@ public class OrderPrepayParam {
     @NotNull
     private Long orderId;
 
+    private String newMoney;
+
 
 }

@@ -373,11 +373,11 @@ public class DateUtil {
      * @param startTime 开始时间
      * @return 延时时间（秒）
      */
-    public static Integer getDelayTime(Long startTime) {
-        int time = Math.toIntExact((startTime - System.currentTimeMillis()) / 1000);
+    public static Long getDelayTime(Long startTime) {
+        Long time = (startTime - System.currentTimeMillis()) / 1000;
         //如果时间为负数则改为一秒后执行
         if (time <= 0) {
-            time = 1;
+            time = 1L;
         }
         return time;
     }

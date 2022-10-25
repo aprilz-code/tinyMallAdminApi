@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -30,10 +31,12 @@ public class ApIssue extends BaseEntity<ApIssue> {
 
     @ApiModelProperty("问题标题")
     @TableField("question")
+    @NotBlank(message = "问题标题不能为空")
     private String question;
 
     @ApiModelProperty("问题答案")
     @TableField("answer")
+    @NotBlank(message = "问题答案不能为空")
     private String answer;
 
 

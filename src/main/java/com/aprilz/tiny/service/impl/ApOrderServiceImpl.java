@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.aprilz.tiny.common.api.CommonResult;
 import com.aprilz.tiny.common.api.PageVO;
 import com.aprilz.tiny.common.api.ResultCode;
+import com.aprilz.tiny.common.exception.ServiceException;
 import com.aprilz.tiny.common.plugin.notify.NotifyService;
 import com.aprilz.tiny.common.plugin.notify.NotifyType;
 
@@ -26,7 +27,9 @@ import com.aprilz.tiny.mbg.entity.*;
 import com.aprilz.tiny.param.*;
 import com.aprilz.tiny.service.*;
 import com.aprilz.tiny.vo.OrderDetailVo;
+import com.aprilz.tiny.vo.OrderVo;
 import com.aprilz.tiny.vo.OrdersListVo;
+import com.aprilz.tiny.vo.UserVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -42,11 +45,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 
 import java.math.BigDecimal;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -69,6 +74,9 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
 
     @Autowired
     private ExpressService expressService;
+
+    @Autowired
+    private IApUserService userService;
 
 
     @Autowired
@@ -433,6 +441,227 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
         return CommonResult.success();
     }
 
+    /**
+     * 订单退款
+     * <p>
+     * 1. 检测当前订单是否能够退款;
+     * 2. 微信退款操作;
+     * 3. 设置订单退款确认状态；
+     * 4. 订单商品库存回库。
+     * <p>
+     * TODO
+     * 虽然接入了微信退款API，但是从安全角度考虑，建议开发者删除这里微信退款代码，采用以下两步走步骤：
+     * 1. 管理员登录微信官方支付平台点击退款操作进行退款
+     * 2. 管理员登录litemall管理后台点击退款操作进行订单状态修改和商品库存回库
+     *
+     * @param orderId 订单信息，{ orderId：xxx }
+     * @return 订单退款操作结果
+     */
+    @Override
+    @Transactional
+    public CommonResult doRefundWithOid(Long orderId) {
+
+        ApOrder order = this.getById(orderId);
+
+//        if (order.getActualPrice().compareTo(new BigDecimal(refundMoney)) != 0) {
+//            return CommonResult.error("退款金额不对");
+//        }
+
+        // 如果订单不是退款状态，则不能退款
+        if (!order.getOrderStatus().equals(OrderUtil.STATUS_REFUND)) {
+            return CommonResult.error(ResultCode.ORDER_CONFIRM_NOT_ALLOWED);
+        }
+
+        List<ApOrderGoods> goods = orderGoodsService.queryByOid(orderId);
+
+        List<RefundGoodsDetail> list = new ArrayList<>();
+
+        // 订单金额：单位（分）
+        goods.stream().forEach(good -> {
+            // 微信退款
+            RefundGoodsDetail refundGoodsDetail = new RefundGoodsDetail()
+                    .setMerchant_goods_id(good.getGoodsSn())
+                    .setGoods_name(good.getGoodsName())
+                    .setUnit_price(CurrencyUtil.fen(good.getPrice()))
+                    .setRefund_amount(CurrencyUtil.fen(good.getPrice()) * good.getNumber())
+                    .setRefund_quantity(good.getNumber());
+            list.add(refundGoodsDetail);
+        });
+
+        try {
+            RefundModel refundModel = new RefundModel()
+                    .setOut_trade_no(order.getOrderSn())
+                    .setOut_refund_no("refund_" + order.getOrderSn())
+                    .setReason("IJPay 测试退款")
+                    .setNotify_url(wxPayV3Properties.getDomain().concat("/v3/refundNotify"))
+                    .setAmount(new RefundAmount()
+                            .setRefund(CurrencyUtil.fen(order.getActualPrice()))
+                            .setTotal(CurrencyUtil.fen(order.getActualPrice()))
+                            .setCurrency("CNY"))
+                    .setGoods_detail(list);
+
+            log.info("退款参数 {}", JSONUtil.toJsonStr(refundModel));
+            IJPayHttpResponse response = WxPayApi.v3(
+                    RequestMethod.POST,
+                    WxDomain.CHINA.toString(),
+                    WxApiType.DOMESTIC_REFUNDS.toString(),
+                    wxPayV3Properties.getMchId(),
+                    getSerialNumber(),
+                    null,
+                    wxPayV3Properties.getKeyPath(),
+                    JSONUtil.toJsonStr(refundModel)
+            );
+
+            // 根据证书序列号查询对应的证书来验证签名结果
+            if (response.getStatus() == HttpStatus.HTTP_OK) {
+                boolean verifySignature = WxPayKit.verifySignature(response, wxPayV3Properties.getPlatformCertPath());
+                log.info("verifySignature: {}", verifySignature);
+                log.info("退款响应 {}", response);
+                if (verifySignature) {
+                    //校验成功
+                    String body = response.getBody();
+
+                    // 设置订单取消状态
+                    order.setOrderStatus(OrderUtil.STATUS_REFUND_CONFIRM);
+                    order.setEndTime(new Date());
+                    // 记录订单退款相关信息
+                    order.setRefundAmount(order.getActualPrice());
+                    order.setRefundType("微信退款接口");
+                    order.setRefundContent(response.getBody());
+                    order.setRefundTime(new Date());
+                    if (!this.updateWithOptimisticLocker(order)) {
+                        throw new RuntimeException("更新数据已失效");
+                    }
+
+                    // 商品货品数量增加
+                    for (ApOrderGoods orderGoods : goods) {
+                        Long productId = orderGoods.getProductId();
+                        Integer number = orderGoods.getNumber();
+                        if (productService.addStock(productId, number) == 0) {
+                            throw new RuntimeException("商品货品库存增加失败");
+                        }
+                    }
+
+                    // 返还优惠券
+                    List<ApCouponUser> couponUsers = couponUserService.lambdaQuery().eq(ApCouponUser::getOrderId, orderId)
+                            .eq(ApCouponUser::getDeleteFlag, false).list();
+                    for (ApCouponUser couponUser : couponUsers) {
+                        // 优惠券状态设置为可使用
+                        couponUser.setStatus(CouponUserConstant.STATUS_USABLE);
+                        couponUser.setUpdateTime(new Date());
+                        couponUserService.updateById(couponUser);
+                    }
+
+                    // 发送短信通知，这里采用异步发送
+                    // 退款成功通知用户, 例如“您申请的订单退款 [ 单号:{1} ] 已成功，请耐心等待到账。”
+                    // TODO 注意订单号只发后6位
+                    notifyService.notifySmsTemplate(order.getMobile(), NotifyType.REFUND,
+                            new String[]{order.getOrderSn().substring(8, 14)});
+                    return CommonResult.success();
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return CommonResult.error(ResultCode.ORDER_REFUND_FAILED);
+    }
+
+    @Override
+    public void ship(OrderShipParam param) {
+        Integer orderId = param.getOrderId();
+        String shipSn = param.getShipSn();
+        String shipChannel = param.getShipChannel();
+
+        ApOrder order = this.getById(orderId);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+
+        // 如果订单不是已付款状态，则不能发货
+        if (!order.getOrderStatus().equals(OrderUtil.STATUS_PAY)) {
+            throw new ServiceException("订单不是已付款状态");
+        }
+
+        order.setOrderStatus(OrderUtil.STATUS_SHIP);
+        order.setShipSn(shipSn);
+        order.setShipChannel(shipChannel);
+        order.setShipTime(new Date());
+        if (!this.updateWithOptimisticLocker(order)) {
+            throw new ServiceException("编辑异常");
+        }
+
+        //TODO 发送邮件和短信通知，这里采用异步发送
+        // 发货会发送通知短信给用户:          *
+        // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
+        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
+
+    }
+
+    @Override
+    public CommonResult pay(OrderPrepayParam body) {
+        Long orderId = body.getOrderId();
+
+
+        ApOrder order = this.getById(orderId);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        if (!order.getOrderStatus().equals(OrderUtil.STATUS_CREATE)) {
+            return CommonResult.error(ResultCode.ORDER_PAY_FAILED);
+        }
+
+        order.setActualPrice(order.getActualPrice());
+        order.setOrderStatus(OrderUtil.STATUS_PAY);
+        if (!this.updateWithOptimisticLocker(order)) {
+            return CommonResult.error("更新数据已失效");
+        }
+
+        return CommonResult.success();
+    }
+
+    @Override
+    public CommonResult backDelete(OrderDeleteParam param) {
+        Long orderId = param.getOrderId();
+        ApOrder order = this.getById(orderId);
+        if (order == null) {
+            return CommonResult.error("订单不存在");
+        }
+
+        // 如果订单不是关闭状态(已取消、系统取消、已退款、用户已确认、系统已确认)，则不能删除
+        Integer status = order.getOrderStatus();
+        if (!status.equals(OrderUtil.STATUS_CANCEL) && !status.equals(OrderUtil.STATUS_AUTO_CANCEL) &&
+                !status.equals(OrderUtil.STATUS_CONFIRM) && !status.equals(OrderUtil.STATUS_AUTO_CONFIRM) &&
+                !status.equals(OrderUtil.STATUS_REFUND_CONFIRM)) {
+            return CommonResult.error(ResultCode.ORDER_DELETE_FAILED);
+        }
+        // 删除订单
+        this.removeById(orderId);
+        // 删除订单商品
+        orderGoodsService.lambdaUpdate().eq(ApOrderGoods::getOrderId, orderId).remove();
+        // logHelper.logOrderSucceed("删除", "订单编号 " + order.getOrderSn());
+        return CommonResult.success();
+    }
+
+    @Override
+    public CommonResult reply(OrderReplyParam param) {
+        Long commentId = param.getCommentId();
+
+        // 目前只支持回复一次
+        ApComment comment = commentService.getById(commentId);
+        if (comment == null) {
+            return CommonResult.error("回复不存在");
+        }
+        if (!StringUtils.isEmpty(comment.getAdminContent())) {
+            return CommonResult.error(ResultCode.ORDER_REPLY_EXIST);
+        }
+        String content = param.getContent();
+        // 更新评价回复
+        comment.setAdminContent(content);
+        commentService.updateById(comment);
+        return CommonResult.success();
+    }
+
     @Override
     @Transactional
     public CommonResult doRefund(ApAftersale aftersaleOne) {
@@ -458,7 +687,7 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
         try {
             RefundModel refundModel = new RefundModel()
                     .setOut_trade_no(order.getOrderSn())
-                    .setOut_refund_no(order.getOrderSn())
+                    .setOut_refund_no("refund_" + order.getOrderSn())
                     .setReason("IJPay 测试退款")
                     .setNotify_url(wxPayV3Properties.getDomain().concat("/v3/refundNotify"))
                     .setAmount(new RefundAmount()
@@ -515,12 +744,30 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
                 }
 
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return CommonResult.error(ResultCode.ORDER_REFUND_FAILED);
 
     }
+
+    @Override
+    public Object adminDetail(Long id) {
+        ApOrder order = this.getById(id);
+        List<ApOrderGoods> orderGoods = orderGoodsService.queryByOid(id);
+        UserVo user = userService.findUserVoById(order.getUserId());
+        Map<String, Object> data = new HashMap<>();
+        data.put("order", order);
+        data.put("orderGoods", orderGoods);
+        data.put("user", user);
+        return data;
+    }
+
+    @Override
+    public Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, LocalDateTime start, LocalDateTime end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order) {
+        //todo
+        return null;
+    }
+
+
 }

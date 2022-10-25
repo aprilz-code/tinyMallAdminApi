@@ -2,6 +2,7 @@ package com.aprilz.tiny.param;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -13,6 +14,9 @@ import javax.validation.constraints.NotNull;
 public class OrderRefundParam {
     @NotNull
     private Long orderId;
+
+//    @NotBlank
+//    private String refundMoney;
 
 
 }

@@ -19,4 +19,8 @@ public interface IApGrouponRulesService extends IService<ApGrouponRules> {
 
     Page<GrouponRuleVo> queryPage(Integer page, Integer size, String sort, String order);
 
+    Page<ApGrouponRules> querySelective(Long goodsId, Integer page, Integer limit, String sort, String order);
+
+    boolean countByGoodsId(Long goodsId);
+
 }

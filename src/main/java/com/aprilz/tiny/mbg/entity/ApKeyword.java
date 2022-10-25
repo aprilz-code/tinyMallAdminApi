@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -30,6 +31,7 @@ public class ApKeyword extends BaseEntity<ApKeyword> {
 
     @ApiModelProperty("关键字")
     @TableField("keyword")
+    @NotBlank(message = "关键字不能为空")
     private String keyword;
 
     @ApiModelProperty("关键字的跳转链接")

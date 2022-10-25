@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,6 +33,7 @@ public class ApGrouponRules extends BaseEntity<ApGrouponRules> {
 
     @ApiModelProperty("商品表的商品ID")
     @TableField("goods_id")
+    @NotNull(message = "商品ID不能为空")
     private Long goodsId;
 
     @ApiModelProperty("商品名称")
@@ -44,10 +46,12 @@ public class ApGrouponRules extends BaseEntity<ApGrouponRules> {
 
     @ApiModelProperty("优惠金额")
     @TableField("discount")
+    @NotNull(message = "优惠金额不能为空")
     private BigDecimal discount;
 
     @ApiModelProperty("达到优惠条件的人数")
     @TableField("discount_member")
+    @NotNull(message = "达到优惠条件的人数不能为空")
     private Integer discountMember;
 
     @ApiModelProperty("团购过期时间")
