@@ -100,7 +100,6 @@ public class ApRoleController {
 
     @PreAuthorize("hasAuthority('admin:role:update')")
     @ApiOperation("系统管理-角色管理-角色编辑")
-
     @PostMapping("/update")
     public CommonResult update(@RequestBody ApRole role) {
 

@@ -64,7 +64,7 @@ public class QCodeService {
      * @param goodName
      */
     public String createGoodShareImage(String goodId, String goodPicUrl, String goodName) {
-        if (!TypeUtils.castToBoolean(CacheDbUtil.get(SystemConfig.AP_MALL_NAME))) {
+        if (!TypeUtils.castToBoolean(CacheDbUtil.get(SystemConfig.AP_WX_SHARE))) {
             return "";
         }
 
