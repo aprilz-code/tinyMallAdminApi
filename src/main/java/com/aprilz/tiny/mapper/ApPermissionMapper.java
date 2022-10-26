@@ -17,4 +17,6 @@ import java.util.List;
 public interface ApPermissionMapper extends BaseMapper<ApPermission> {
 
     List<ApPermission> getPermissionList(@Param("adminId") Long adminId);
+
+    Long checkSuperPermission(@Param("roleId") Long roleId);
 }

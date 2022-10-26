@@ -52,7 +52,7 @@ public class ApProfileController {
         user = adminService.getById(id);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(oldPassword, user.getPassword())) {
-            CommonResult.error(ResultCode.OLD_PASS_ERROR);
+            return  CommonResult.error(ResultCode.OLD_PASS_ERROR);
         }
         String encodedNewPassword = encoder.encode(newPassword);
         user.setPassword(encodedNewPassword);

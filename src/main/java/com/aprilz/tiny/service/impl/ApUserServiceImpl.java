@@ -1,6 +1,9 @@
 package com.aprilz.tiny.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.aprilz.tiny.common.api.PageVO;
 import com.aprilz.tiny.common.utils.JwtTokenUtil;
+import com.aprilz.tiny.common.utils.PageUtil;
 import com.aprilz.tiny.common.utils.SpringContextUtil;
 import com.aprilz.tiny.mapper.ApUserMapper;
 import com.aprilz.tiny.mbg.entity.ApUser;
@@ -9,6 +12,8 @@ import com.aprilz.tiny.service.IApUserService;
 import com.aprilz.tiny.vo.Token;
 import com.aprilz.tiny.vo.UserVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,5 +129,21 @@ public class ApUserServiceImpl extends ServiceImpl<ApUserMapper, ApUser> impleme
         userVo.setNickname(user.getNickname());
         userVo.setAvatar(user.getAvatar());
         return userVo;
+    }
+
+    @Override
+    public Page<ApUser> querySelective(String username, String mobile, Integer page, Integer limit, String sort, String order) {
+        LambdaQueryChainWrapper<ApUser> query = this.lambdaQuery();
+
+        if (StrUtil.isNotBlank(username)) {
+            query.like(ApUser::getUsername, username);
+        }
+
+        if (StrUtil.isNotBlank(mobile)) {
+            query.eq(ApUser::getMobile, mobile);
+        }
+        query.eq(ApUser::getDeleteFlag, false);
+        Page<ApUser> pages = PageUtil.initPage(new PageVO().setPageNumber(page).setPageSize(limit).setSort(sort).setOrder(order));
+        return query.page(pages);
     }
 }

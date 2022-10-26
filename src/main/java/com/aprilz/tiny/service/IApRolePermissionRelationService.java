@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IApRolePermissionRelationService extends IService<ApRolePermissionRelation> {
 
+    void deleteByRoleId(Long roleId);
 }

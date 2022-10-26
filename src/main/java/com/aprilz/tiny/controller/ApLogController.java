@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/admin/log")
+@RequestMapping("/log")
 @Validated
 @Slf4j
 @Api("操作日志管理")

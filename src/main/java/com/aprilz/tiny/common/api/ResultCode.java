@@ -27,6 +27,9 @@ public enum ResultCode {
     ORDER_DELETE_FAILED(618,"订单不能删除"),
     ORDER_REPLY_EXIST(619,"订单商品已回复！"),
     OLD_PASS_ERROR(620,"旧密码不正确！"),
+    ROLE_NAME_EXIST(621,"角色已经存在！"),
+    ROLE_USER_EXIST(622,"当前角色存在管理员，不能删除！"),
+    ROLE_SUPER_SUPERMISSION(623,"当前角色的超级权限不能变更"),
 
 
     ORDER_CONFIRM_NOT_ALLOWED(649,"订单不是退款状态,订单退款失败"),

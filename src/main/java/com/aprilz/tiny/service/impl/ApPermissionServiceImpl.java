@@ -6,6 +6,8 @@ import com.aprilz.tiny.service.IApPermissionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 后台用户权限表 服务实现类
@@ -17,4 +19,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApPermissionServiceImpl extends ServiceImpl<ApPermissionMapper, ApPermission> implements IApPermissionService {
 
+    @Override
+    public List<ApPermission> getPermissionList(Long userId) {
+        return  this.baseMapper.getPermissionList(userId);
+
+    }
+
+    @Override
+    public boolean checkSuperPermission(Long roleId) {
+        Long count = this.baseMapper.checkSuperPermission(roleId);
+        return count > 0;
+    }
 }

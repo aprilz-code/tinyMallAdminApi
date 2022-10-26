@@ -9,6 +9,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  * 订单表 Mapper 接口
@@ -21,4 +24,6 @@ public interface ApOrderMapper extends BaseMapper<ApOrder> {
 
     @Select("SELECT id,order_sn,order_status,actual_price,aftersale_status FROM `ap_order`  ${ew.customSqlSegment}")
     Page<OrdersListVo> pageVo(Page<OrdersListVo> pages, @Param(Constants.WRAPPER) QueryWrapper<OrdersListVo> queryWrapper);
+
+    List<Map> statOrder();
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping("/admin/keyword")
+@RequestMapping("/keyword")
 @Validated
 @Slf4j
 @Api("关键词管理")

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -30,6 +31,7 @@ public class ApRole extends BaseEntity<ApRole> {
 
     @ApiModelProperty("名称")
     @TableField("name")
+    @NotBlank(message = "角色名称不能为空")
     private String name;
 
     @ApiModelProperty("描述")

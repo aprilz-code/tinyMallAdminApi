@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -32,6 +34,7 @@ public class ApTopic extends BaseEntity<ApTopic> {
 
     @ApiModelProperty("专题标题")
     @TableField("title")
+    @NotBlank(message = "专题标题不能为空")
     private String title;
 
     @ApiModelProperty("专题子标题")
@@ -40,10 +43,12 @@ public class ApTopic extends BaseEntity<ApTopic> {
 
     @ApiModelProperty("专题内容，富文本格式")
     @TableField("content")
+    @NotBlank(message = "专题内容不能为空")
     private String content;
 
     @ApiModelProperty("专题相关商品最低价")
     @TableField("price")
+    @NotNull(message = "价格不能为空")
     private BigDecimal price;
 
     @ApiModelProperty("专题阅读量")

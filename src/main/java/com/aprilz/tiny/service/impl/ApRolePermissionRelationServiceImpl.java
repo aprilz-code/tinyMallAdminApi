@@ -17,4 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApRolePermissionRelationServiceImpl extends ServiceImpl<ApRolePermissionRelationMapper, ApRolePermissionRelation> implements IApRolePermissionRelationService {
 
+    @Override
+    public void deleteByRoleId(Long roleId) {
+        this.lambdaUpdate().eq(ApRolePermissionRelation::getRoleId, roleId)
+                .set(ApRolePermissionRelation::getDeleteFlag, true).update();
+    }
 }

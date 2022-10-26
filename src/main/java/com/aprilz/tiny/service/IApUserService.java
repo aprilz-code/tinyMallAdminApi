@@ -3,6 +3,7 @@ package com.aprilz.tiny.service;
 import com.aprilz.tiny.mbg.entity.ApUser;
 import com.aprilz.tiny.vo.Token;
 import com.aprilz.tiny.vo.UserVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -24,4 +25,6 @@ public interface IApUserService extends IService<ApUser> {
     void test();
 
     UserVo findUserVoById(Long userId);
+
+    Page<ApUser> querySelective(String username, String mobile, Integer page, Integer limit, String sort, String order);
 }

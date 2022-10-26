@@ -17,4 +17,5 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApAdminRoleRelationServiceImpl extends ServiceImpl<ApAdminRoleRelationMapper, ApAdminRoleRelation> implements IApAdminRoleRelationService {
 
+
 }

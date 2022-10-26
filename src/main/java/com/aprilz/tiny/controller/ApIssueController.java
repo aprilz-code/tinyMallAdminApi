@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping("/admin/issue")
+@RequestMapping("/issue")
 @Validated
 @Slf4j
 @Api("通用问题管理")
