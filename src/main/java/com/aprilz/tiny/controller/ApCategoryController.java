@@ -1,6 +1,7 @@
 package com.aprilz.tiny.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.aprilz.tiny.common.api.CommonResult;
 import com.aprilz.tiny.mbg.entity.ApCategory;
 import com.aprilz.tiny.param.DeleteParam;
@@ -11,7 +12,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,12 +37,18 @@ public class ApCategoryController {
     @GetMapping("/list")
     public CommonResult list() {
         List<ApCategory> categoryList = categoryService.queryByPid(0L);
+        if (CollUtil.isEmpty(categoryList)) {
+            CommonResult.success(CollUtil.newArrayList());
+        }
+
+        List<CategoryVo> classes = CollUtil.newArrayList();
         for (ApCategory category : categoryList) {
             CategoryVo categoryVO = new CategoryVo();
             BeanUtil.copyProperties(category, categoryVO);
             categoryVO.setChildren(categoryService.queryByPid(category.getId()));
+            classes.add(categoryVO);
         }
-        return CommonResult.success(categoryList);
+        return CommonResult.success(classes);
     }
 
 
@@ -72,7 +78,7 @@ public class ApCategoryController {
             return CommonResult.paramsError();
         }
 
-        if (!categoryService.updateById(category) ) {
+        if (!categoryService.updateById(category)) {
             return CommonResult.error("编辑异常");
         }
         return CommonResult.success();

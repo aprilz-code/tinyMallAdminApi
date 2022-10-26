@@ -11,7 +11,7 @@ import java.util.List;
  * @since: 2022/10/18
  **/
 @Data
-public class CategoryVo {
+public class CategoryVo  extends  ApCategory{
 
     private List<ApCategory> children;
 }

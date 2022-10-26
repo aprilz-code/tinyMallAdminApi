@@ -40,14 +40,14 @@ public class ApRegionController {
     public CommonResult list() {
         List<RegionVo> regionVoList = new ArrayList<>();
 
-        List<ApRegion> litemallRegions = regionService.list();
-        Map<Integer, List<ApRegion>> collect = litemallRegions.stream().collect(Collectors.groupingBy(ApRegion::getType));
-        byte provinceType = 1;
+        List<ApRegion> regions = regionService.list();
+        Map<Integer, List<ApRegion>> collect = regions.stream().collect(Collectors.groupingBy(ApRegion::getType));
+        Integer provinceType = 1;
         List<ApRegion> provinceList = collect.get(provinceType);
-        byte cityType = 2;
+        Integer cityType = 2;
         List<ApRegion> city = collect.get(cityType);
         Map<Long, List<ApRegion>> cityListMap = city.stream().collect(Collectors.groupingBy(ApRegion::getPid));
-        byte areaType = 3;
+        Integer areaType = 3;
         List<ApRegion> areas = collect.get(areaType);
         Map<Long, List<ApRegion>> areaListMap = areas.stream().collect(Collectors.groupingBy(ApRegion::getPid));
 

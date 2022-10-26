@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public interface IApOrderService extends IService<ApOrder> {
 
     Object adminDetail(Long id);
 
-    Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, LocalDateTime start, LocalDateTime end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order);
+    Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, Date start, Date end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order);
 
     CommonResult doRefundWithOid(Long orderId);
 

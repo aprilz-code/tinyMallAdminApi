@@ -33,11 +33,11 @@ public class ApSearchHistory extends BaseEntity<ApSearchHistory> {
     private Long userId;
 
     @ApiModelProperty("搜索关键字")
-    @TableField("keyword")
+    @TableField("`keyword`")
     private String keyword;
 
     @ApiModelProperty("搜索来源，如pc、wx、app")
-    @TableField("from")
+    @TableField("`from`")
     private String from;
 
 

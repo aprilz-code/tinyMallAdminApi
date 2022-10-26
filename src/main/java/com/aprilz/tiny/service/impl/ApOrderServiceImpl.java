@@ -1,5 +1,6 @@
 package com.aprilz.tiny.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
@@ -764,9 +765,42 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
     }
 
     @Override
-    public Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, LocalDateTime start, LocalDateTime end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order) {
-        //todo
-        return null;
+    public Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, Date start, Date end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order) {
+        Page<OrderVo> pages = new Page(page, limit);
+        QueryWrapper<OrderVo> query = new QueryWrapper<>();
+       if(StrUtil.isNotBlank(nickname)){
+           query.like("u.nickname", nickname);
+       }
+        if(StrUtil.isNotBlank(consignee)){
+            query.like("u.consignee", consignee);
+        }
+
+        if(StrUtil.isNotBlank(orderSn)){
+            query.eq("u.order_sn", consignee);
+        }
+
+        if(Objects.nonNull(start)){
+            query.ge("o.create_time", start);
+        }
+
+        if ("desc".equals(order)) {
+            query.orderByDesc("o." + sort);
+        } else {
+            query.orderByAsc("u." + sort);
+        }
+        query.orderByDesc("o.id");
+
+
+        if(Objects.nonNull(end)){
+            query.le("o.create_time", start);
+        }
+        if(CollUtil.isNotEmpty(orderStatusArray)){
+            query.in("o.order_status", orderStatusArray);
+        }
+        query.eq("o.delete_flag", false);
+        query.eq("og.delete_flag", false);
+
+        return this.getBaseMapper().queryPage(pages,query);
     }
 
 
