@@ -1,12 +1,20 @@
 package com.aprilz.tiny.common.api;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.io.Serializable;
+
 /**
  * 通用返回对象
  * Created by aprilz on 2019/4/19.
  */
-public class CommonResult<T> {
+public class CommonResult<T>  implements Serializable {
+    @ApiModelProperty(value = "响应码")
     private long code;
+    @ApiModelProperty(value = "响应消息")
     private String message;
+    @ApiModelProperty(value = "响应数据")
     private T data;
 
     /**

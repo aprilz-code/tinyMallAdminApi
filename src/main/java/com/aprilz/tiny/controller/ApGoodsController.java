@@ -41,7 +41,7 @@ public class ApGoodsController {
     @PreAuthorize("hasAuthority('admin:goods:list')")
     @ApiOperation("商品管理-商品管理-查询")
     @GetMapping("/list")
-    public CommonResult list(Integer goodsId, String goodsSn, String name,
+    public CommonResult<Page<ApGoods>> list(Integer goodsId, String goodsSn, String name,
                              @RequestParam(defaultValue = "1") Integer page,
                              @RequestParam(defaultValue = "10") Integer limit,
                              @RequestParam(defaultValue = "create_time") String sort,

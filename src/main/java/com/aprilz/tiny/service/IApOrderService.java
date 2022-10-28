@@ -49,7 +49,7 @@ public interface IApOrderService extends IService<ApOrder> {
 
     CommonResult doRefund(ApAftersale aftersaleOne);
 
-    Object adminDetail(Long id);
+    Map<String, Object> adminDetail(Long id);
 
     Page<OrderVo> querySelective(String nickname, String consignee, String orderSn, Date start, Date end, List<Integer> orderStatusArray, Integer page, Integer limit, String sort, String order);
 

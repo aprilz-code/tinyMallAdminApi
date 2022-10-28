@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
@@ -77,7 +78,7 @@ public class ApOrderController {
     @PreAuthorize("hasAuthority('admin:order:read')")
     @ApiOperation("商场管理-订单管理-详情")
     @GetMapping("/detail")
-    public CommonResult detail(@NotNull Long id) {
+    public CommonResult<Map<String, Object>> detail(@NotNull Long id) {
         return CommonResult.success(orderService.adminDetail(id));
     }
 

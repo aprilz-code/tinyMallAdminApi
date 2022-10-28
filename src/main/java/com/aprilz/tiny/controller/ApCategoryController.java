@@ -35,7 +35,7 @@ public class ApCategoryController {
     @PreAuthorize("hasAuthority('admin:category:list')")
     @ApiOperation("商城管理-类目管理-查询")
     @GetMapping("/list")
-    public CommonResult list() {
+    public CommonResult<List<CategoryVo>> list() {
         List<ApCategory> categoryList = categoryService.queryByPid(0L);
         if (CollUtil.isEmpty(categoryList)) {
             CommonResult.success(CollUtil.newArrayList());

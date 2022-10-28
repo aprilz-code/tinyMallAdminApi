@@ -188,7 +188,7 @@ ap:
     local:
       storagePath: storage
       # 这个地方应该是wx模块的WxStorageController的fetch方法对应的地址
-      address: http://10.1.129.68:8084/admin/storage/fetch/
+      address: http://10.1.129.68:8082/wx/storage/fetch/
     # 阿里云对象存储配置信息
     aliyun:
       endpoint: oss-cn-shenzhen.aliyuncs.com

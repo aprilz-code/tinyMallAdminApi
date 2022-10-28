@@ -753,7 +753,7 @@ public class ApOrderServiceImpl extends ServiceImpl<ApOrderMapper, ApOrder> impl
     }
 
     @Override
-    public Object adminDetail(Long id) {
+    public Map<String, Object> adminDetail(Long id) {
         ApOrder order = this.getById(id);
         List<ApOrderGoods> orderGoods = orderGoodsService.queryByOid(id);
         UserVo user = userService.findUserVoById(order.getUserId());
